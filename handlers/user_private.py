@@ -1,7 +1,9 @@
 from aiogram import types, Router, F
 from aiogram.filters import CommandStart, Command
+from aiogram.utils.formatting import Bold, as_marked_section
 
 from filters.chat_types import ChatTypeFilter
+from keyboards import reply
 
 
 user_private_router = Router()
@@ -10,27 +12,42 @@ user_private_router.message.filter(ChatTypeFilter(['private']))  # chat type for
 
 @user_private_router.message(CommandStart())
 async def start_cmd(message: types.Message):
-    await message.answer('я виртуальный помощник')
+    await message.answer('я виртуальный помощник', reply_markup=reply.statr_kb)
 
 
 @user_private_router.message(F.text.lower() == 'меню')
 @user_private_router.message(Command('menu'))
 async def menu_cmd(message: types.Message):
-    await message.answer('Вот наше меню:')
+    await message.answer('Вот наше меню:', reply_markup=reply.del_kbd)
 
 
-@user_private_router.message(F.text.lower() == 'о нас')
+@user_private_router.message(F.text.lower() == 'о кафе')
 @user_private_router.message(Command('about'))
 async def about_cmd(message: types.Message):
-    await message.answer('О нас:')
+    await message.answer('О нас:', reply_markup=reply.del_kbd)
 
 
 @user_private_router.message(F.text.lower().contains('оплат'))
 @user_private_router.message(Command('payment'))
 async def payment_cmd(message: types.Message):
-    await message.answer('Варианты оплаты:')
+    text = as_marked_section(
+        Bold('Варианты оплаты:'),
+        '💳 Онлайн',
+        '💰 Наличные при получении',
+        '🏠 В заведении',
+        marker='• '
+    )
+    await message.answer(text.as_html(), reply_markup=reply.del_kbd)
+
 
 @user_private_router.message(F.text.lower().contains('доставк'))
 @user_private_router.message(Command('delivery'))
 async def delivery_cmd(message: types.Message):
-    await message.answer('Варианты доставки:')
+    text = as_marked_section(
+        Bold('Варианты доставки:'),
+        '🚀 Курьером (до 30 минут)',
+        '🏠 Самовывоз из кофейни',
+        '📍 Доставка через сервисы (Яндекс, Delivery Club)',
+        marker='• '
+    )
+    await message.answer(text.as_html(), reply_markup=reply.del_kbd)

@@ -2,6 +2,8 @@ import asyncio
 import os
 
 from aiogram import Bot, Dispatcher, types
+from aiogram.enums import ParseMode
+from aiogram.client.default import DefaultBotProperties
 
 from dotenv import find_dotenv, load_dotenv
 load_dotenv(find_dotenv())
@@ -13,7 +15,8 @@ from common.bot_cmds_list import private
 
 ALLOWED_UPDATES = ['message', 'edited_message']
 
-bot = Bot(token=os.getenv('TOKEN'))
+bot = Bot(token=os.getenv('TOKEN'), default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+bot.my_admins_list = []
 dp = Dispatcher()
 dp.include_router(user_private_router)
 dp.include_router(user_group_router)
