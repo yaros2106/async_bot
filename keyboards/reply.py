@@ -23,13 +23,7 @@ admin_kb = ReplyKeyboardMarkup(
     keyboard=[
         [
         KeyboardButton(text="Добавить товар"),
-        KeyboardButton(text="Изменить товар"),
-        ],
-        [
-        KeyboardButton(text="Удалить товар"),
-        ],
-        [
-        KeyboardButton(text="Посмотреть список товаров"),
+        KeyboardButton(text="Ассортимент"),
         ]
     ],
     resize_keyboard=True,

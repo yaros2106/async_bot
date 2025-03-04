@@ -4,8 +4,9 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.fsm.context import FSMContext
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.orm_query import orm_add_product
+from database.orm_query import orm_add_product, orm_get_products, orm_get_product, orm_update_product, orm_delete_product
 from filters.chat_types import ChatTypeFilter, IsAdmin
+from keyboards.inline import get_callback_btns
 from keyboards.reply import admin_kb
 
 
@@ -18,19 +19,19 @@ async def add_product(message: types.Message):
     await message.answer("Что хотите сделать?", reply_markup=admin_kb)
 
 
-@admin_router.message(F.text == "Посмотреть список товаров")
-async def starring_at_product(message: types.Message):
+@admin_router.message(F.text == "Ассортимент")
+async def starring_at_product(message: types.Message, session: AsyncSession):
+    for product in await orm_get_products(session):
+        await message.answer_photo(
+            product.image,
+            caption=f'<strong>{product.name}\
+                    </strong>\n{product.description}\nСтоимость: {round(product.price, 2)}',
+            reply_markup=get_callback_btns(btns={
+                'Удалить товар': f'delete_{product.id}',
+                'Изменить товар': f'change_{product.id}'
+            })
+        )
     await message.answer("Вот список товаров")
-
-
-@admin_router.message(F.text == "Изменить товар")
-async def change_product(message: types.Message):
-    await message.answer("Вот список товаров")
-
-
-@admin_router.message(F.text == "Удалить товар")
-async def delete_product(message: types.Message):
-    await message.answer("Выберите товар(ы) для удаления")
 
 
 # next for FSM
