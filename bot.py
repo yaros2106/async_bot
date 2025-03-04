@@ -16,7 +16,7 @@ from handlers.admin_private import admin_router
 from common.bot_cmds_list import private
 
 
-ALLOWED_UPDATES = ['message', 'edited_message']
+# ALLOWED_UPDATES = ['message', 'edited_message', 'callback_query']
 
 bot = Bot(token=os.getenv('TOKEN'), default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 bot.my_admins_list = []
@@ -45,7 +45,7 @@ async def main():
 
     await bot.delete_webhook(drop_pending_updates=True)  # skip updates
     await bot.set_my_commands(commands=private, scope=types.BotCommandScopeAllPrivateChats())
-    await dp.start_polling(bot, allowed_updates=ALLOWED_UPDATES)
+    await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
 
 
 if __name__ == '__main__':

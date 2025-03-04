@@ -34,6 +34,14 @@ async def starring_at_product(message: types.Message, session: AsyncSession):
     await message.answer("Вот список товаров")
 
 
+@admin_router.callback_query(F.data.startswith('delete_'))
+async def delete_product(callback: types.CallbackQuery, session: AsyncSession):
+    product_id = callback.data.split('_')[-1]
+    await orm_delete_product(session, int(product_id))
+    await callback.answer("Товар удален")  # pop-up notification
+    await callback.message.answer('Товар удален')
+
+
 # next for FSM
 
 
