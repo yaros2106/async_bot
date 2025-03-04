@@ -3,3 +3,4 @@
 __pycache__/
 .env
 restricted_words.txt
+my_base.db
