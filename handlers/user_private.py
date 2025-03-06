@@ -1,30 +1,30 @@
 from aiogram import types, Router, F
 from aiogram.filters import CommandStart, Command
-from aiogram.utils.formatting import Bold, as_marked_section
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from filters.chat_types import ChatTypeFilter
 from handlers.menu_processing import get_menu_content
-from keyboards import reply, inline
+
 from keyboards.inline import MenuCallBack
 from keyboards.reply import phone_request_keyboard
-from database.orm_query import orm_get_products, orm_add_to_cart, orm_add_user
+from database.orm_query import orm_add_to_cart, orm_add_user
 
 
 user_private_router = Router()
 user_private_router.message.filter(ChatTypeFilter(['private']))  # chat type for this router to work
 
 
-delivery_options = "\n".join([
-    "🚀 Курьером (до 30 минут)",
-    "🏠 Самовывоз из кофейни",
-    "📍 Доставка через сервисы (Яндекс, Delivery Club)"
-])
+@user_private_router.callback_query(F.data == "order_delivery")
+async def process_order_callback(callback: types.CallbackQuery):
+    delivery_options = "\n".join([
+        "🚀 Курьером (до 30 минут)",
+        "🏠 Самовывоз из кофейни",
+        "📍 Доставка через сервисы (Яндекс, Delivery Club)"
+    ])
 
-@user_private_router.message(Command("order"))
-async def process_order(message: types.Message):
     text = f"<b>Варианты доставки:</b>\n{delivery_options}\n\nВыберите способ:"
-    await message.answer(
+
+    await callback.message.answer(
         text,
         parse_mode="HTML",
         reply_markup=types.ReplyKeyboardMarkup(
@@ -36,6 +36,8 @@ async def process_order(message: types.Message):
             resize_keyboard=True
         )
     )
+    await callback.answer()  # Закрываем анимацию "Загрузка..."
+
 
 @user_private_router.message(lambda msg: msg.text in ["🚀 Курьером", "🏠 Самовывоз", "📍 Доставка через сервисы"])
 async def ask_phone(message: types.Message):
@@ -47,7 +49,8 @@ async def ask_phone(message: types.Message):
 @user_private_router.message(lambda msg: msg.contact)
 async def process_phone(message: types.Message):
     await message.answer(
-        "Спасибо! Ваш заказ принят. Оператор свяжется с вами для уточнения деталей."
+        "Спасибо! Ваш заказ принят. Оператор свяжется с вами для уточнения деталей.",
+        reply_markup=types.ReplyKeyboardRemove()
     )
 
 
