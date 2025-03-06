@@ -219,7 +219,7 @@ async def add_description(message: types.Message, state: FSMContext, session: As
     if message.text == "." and AddProduct.product_for_change:
         await state.update_data(description=AddProduct.product_for_change.description)
     else:
-        if 4 >= len(message.text):
+        if 3 >= len(message.text):
             await message.answer(
                 "Слишком короткое описание. \n Введите заново"
             )
