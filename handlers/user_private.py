@@ -7,11 +7,48 @@ from filters.chat_types import ChatTypeFilter
 from handlers.menu_processing import get_menu_content
 from keyboards import reply, inline
 from keyboards.inline import MenuCallBack
+from keyboards.reply import phone_request_keyboard
 from database.orm_query import orm_get_products, orm_add_to_cart, orm_add_user
 
 
 user_private_router = Router()
 user_private_router.message.filter(ChatTypeFilter(['private']))  # chat type for this router to work
+
+
+delivery_options = "\n".join([
+    "🚀 Курьером (до 30 минут)",
+    "🏠 Самовывоз из кофейни",
+    "📍 Доставка через сервисы (Яндекс, Delivery Club)"
+])
+
+@user_private_router.message(Command("order"))
+async def process_order(message: types.Message):
+    text = f"<b>Варианты доставки:</b>\n{delivery_options}\n\nВыберите способ:"
+    await message.answer(
+        text,
+        parse_mode="HTML",
+        reply_markup=types.ReplyKeyboardMarkup(
+            keyboard=[
+                [types.KeyboardButton(text="🚀 Курьером")],
+                [types.KeyboardButton(text="🏠 Самовывоз")],
+                [types.KeyboardButton(text="📍 Доставка через сервисы")]
+            ],
+            resize_keyboard=True
+        )
+    )
+
+@user_private_router.message(lambda msg: msg.text in ["🚀 Курьером", "🏠 Самовывоз", "📍 Доставка через сервисы"])
+async def ask_phone(message: types.Message):
+    await message.answer(
+        "Для оформления заказа отправьте ваш номер телефона:",
+        reply_markup=phone_request_keyboard()
+    )
+
+@user_private_router.message(lambda msg: msg.contact)
+async def process_phone(message: types.Message):
+    await message.answer(
+        "Спасибо! Ваш заказ принят. Оператор свяжется с вами для уточнения деталей."
+    )
 
 
 @user_private_router.message(CommandStart())
