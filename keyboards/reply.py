@@ -24,6 +24,9 @@ admin_kb = ReplyKeyboardMarkup(
         [
         KeyboardButton(text="Добавить товар"),
         KeyboardButton(text="Ассортимент"),
+        ],
+        [
+        KeyboardButton(text="Добавить/Изменить баннер")
         ]
     ],
     resize_keyboard=True,
